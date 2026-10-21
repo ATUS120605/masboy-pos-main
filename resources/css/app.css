@@ -1,0 +1,41 @@
+@import 'tailwindcss';
+
+@source '../../vendor/laravel/framework/src/Illuminate/Pagination/resources/views/*.blade.php';
+@source '../../storage/framework/views/*.php';
+
+@theme {
+    --font-sans: 'Poppins', ui-sans-serif, system-ui, sans-serif, 'Apple Color Emoji', 'Segoe UI Emoji',
+        'Segoe UI Symbol', 'Noto Color Emoji';
+    --color-primary: #064E3B;
+    --color-primary-light: #D1FAE5;
+}
+
+@layer base {
+    body {
+        @apply font-sans text-slate-800 leading-relaxed;
+        -webkit-font-smoothing: antialiased;
+        -moz-osx-font-smoothing: grayscale;
+        text-rendering: optimizeLegibility;
+    }
+    h1, h2, h3, h4, h5, h6 {
+        @apply font-bold tracking-tight text-slate-900;
+    }
+    p {
+        @apply leading-relaxed;
+    }
+    small, .text-sm {
+        @apply text-slate-500;
+    }
+    [x-cloak] {
+        display: none !important;
+    }
+    #sidebar[data-collapsed="true"] nav a {
+        justify-content: center;
+        padding-left: 0 !important;
+        padding-right: 0 !important;
+    }
+    #sidebar[data-collapsed="true"] .sidebar-section-divider {
+        margin-left: 0;
+        margin-right: 0;
+    }
+}
