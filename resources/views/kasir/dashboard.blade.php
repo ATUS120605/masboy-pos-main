@@ -92,42 +92,5 @@
             </table>
         </div>
     </div>
-
-    {{-- Pendapatan per Kasir --}}
-    <div class="bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden">
-        <div class="px-5 py-4 border-b border-gray-100">
-            <h3 class="text-sm font-semibold text-gray-900">Pendapatan per Kasir</h3>
-        </div>
-        <div class="overflow-x-auto">
-            <table class="w-full text-sm">
-                <thead>
-                    <tr class="bg-gray-50 border-b border-gray-100">
-                        <th class="text-left px-5 py-3 text-xs font-semibold text-gray-500 uppercase tracking-wider">Kasir</th>
-                        <th class="text-center px-5 py-3 text-xs font-semibold text-gray-500 uppercase tracking-wider">Jumlah Transaksi</th>
-                        <th class="text-right px-5 py-3 text-xs font-semibold text-gray-500 uppercase tracking-wider">Tunai</th>
-                        <th class="text-right px-5 py-3 text-xs font-semibold text-gray-500 uppercase tracking-wider">QRIS</th>
-                        <th class="text-right px-5 py-3 text-xs font-semibold text-gray-500 uppercase tracking-wider">Total</th>
-                    </tr>
-                </thead>
-                <tbody class="divide-y divide-gray-100">
-                    @forelse ($rincianKasir as $rk)
-                        <tr class="hover:bg-gray-50 transition">
-                            <td class="px-5 py-3.5 font-medium text-gray-900">{{ $rk->nama_kasir }}</td>
-                            <td class="px-5 py-3.5 text-center text-gray-600">{{ $rk->jumlah_transaksi }}</td>
-                            <td class="px-5 py-3.5 text-right text-gray-900">Rp {{ number_format($rk->total_tunai, 0, ',', '.') }}</td>
-                            <td class="px-5 py-3.5 text-right text-gray-900">Rp {{ number_format($rk->total_qris, 0, ',', '.') }}</td>
-                            <td class="px-5 py-3.5 text-right font-semibold text-gray-900">Rp {{ number_format($rk->total, 0, ',', '.') }}</td>
-                        </tr>
-                    @empty
-                        <tr>
-                            <td colspan="5" class="px-5 py-10 text-center text-gray-400">
-                                <p class="text-sm">Belum ada transaksi hari ini.</p>
-                            </td>
-                        </tr>
-                    @endforelse
-                </tbody>
-            </table>
-        </div>
-    </div>
 </div>
 @endsection

@@ -20,11 +20,23 @@
             line-height: 1.4;
             padding: 10px;
             width: 80mm;
-            color: #000;
+            color: #000 !important; /* Paksa hitam */
         }
         .header {
             text-align: center;
             margin-bottom: 8px;
+        }
+        .logo-container {
+            display: flex;
+            justify-content: center;
+            margin-bottom: 4px;
+        }
+        .logo-img {
+            width: 48px;
+            height: 48px;
+            border-radius: 50%;
+            object-fit: cover;
+            border: 2px solid #000; 
         }
         .header h2 {
             font-size: 12px;
@@ -102,6 +114,7 @@
             display: flex;
             justify-content: space-between;
             padding: 1px 0;
+            color: #000 !important; /* Paksa hitam untuk baris kembalian */
         }
         .total-row.grand-total {
             font-weight: bold;
@@ -150,7 +163,9 @@
 
     <div class="header">
         @if (!empty($pengaturan->logo))
-            <img src="{{ asset('storage/' . $pengaturan->logo) }}" alt="Logo" style="max-height:50px;max-width:100%;margin-bottom:4px;">
+            <div class="logo-container">
+                <img src="{{ asset('storage/' . $pengaturan->logo) }}" alt="Logo" class="logo-img">
+            </div>
         @endif
         <h2>{{ $pengaturan->nama_usaha ?? config('app.name', 'MasBoy POS') }}</h2>
         <p>{{ $pengaturan->alamat ?? '' }}</p>
@@ -180,13 +195,14 @@
             <td class="value">{{ $transaksi->pesanans->first()->nama_pelanggan }}</td>
         </tr>
         @endif
-        <tr>
-            <td class="label">Tanggal</td>
-            <td class="value">{{ $transaksi->created_at->format('d/m/Y H:i:s') }}</td>
-        </tr>
+        {{-- Kasir dipindah ke sini, tepat di bawah Pelanggan --}}
         <tr>
             <td class="label">Kasir</td>
             <td class="value">{{ $transaksi->kasir->name ?? '-' }}</td>
+        </tr>
+        <tr>
+            <td class="label">Tanggal</td>
+            <td class="value">{{ $transaksi->created_at->format('d/m/Y H:i:s') }}</td>
         </tr>
     </table>
 
@@ -252,9 +268,11 @@
         @if (!empty($pengaturan->footer))
             {!! nl2br(e($pengaturan->footer)) !!}
         @else
-            <p>Terima Kasih</p>
-            <p>Selamat Menikmati</p>
+            <p>Terima Kasih, ditunggu kunjungan berikutnya !</p>
         @endif
+        
+        {{-- Teks IG --}}
+        <p style="margin-top: 6px; font-weight: bold; color: #000 !important;">Follow IG : LalapanMasBoy.bdj</p>
     </div>
 </body>
 </html>

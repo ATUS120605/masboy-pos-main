@@ -73,17 +73,26 @@
     <div class="w-[30%] flex flex-col h-full">
         <div class="bg-white rounded-xl shadow-sm flex flex-col h-full">
             {{-- Tabs --}}
-            <div class="flex border-b shrink-0">
-                <button @click="panelTab = 'cart'" :class="panelTab === 'cart' ? 'border-emerald-900 text-emerald-900 font-bold' : 'text-gray-500 hover:text-gray-700'" class="flex-1 px-4 py-3 text-sm border-b-2 transition">
-                    Pesanan Baru
-                </button>
-                <button @click="panelTab = 'pending'" :class="panelTab === 'pending' ? 'border-orange-500 text-orange-600 font-bold' : 'text-gray-500 hover:text-gray-700'" class="flex-1 px-4 py-3 text-sm border-b-2 transition relative">
-                    Pending
-                    <template x-if="pendingTransaksis.length > 0">
-                        <span class="absolute -top-1 -right-1 bg-orange-500 text-white text-[10px] font-bold w-5 h-5 rounded-full flex items-center justify-center shadow-sm" x-text="pendingTransaksis.length"></span>
-                    </template>
-                </button>
-            </div>
+           <div class="flex shrink-0">
+    <!-- Tab Pesanan Baru -->
+    <button @click="panelTab = 'cart'" 
+            :class="panelTab === 'cart' ? 'border-emerald-900 text-emerald-900 font-bold' : 'border-transparent text-gray-500 hover:text-gray-700'" 
+            class="flex-1 px-4 py-3 text-sm border-b-2 transition">
+        Pesanan Baru
+    </button>
+    
+    <!-- Tab Pending -->
+    <button @click="panelTab = 'pending'" 
+            :class="panelTab === 'pending' ? 'border-orange-500 text-orange-500 font-bold' : 'border-transparent text-gray-500 hover:text-gray-700'" 
+            class="flex-1 px-4 py-3 text-sm border-b-2 transition relative">
+        Pending
+        
+        <!-- Badge Angka Antrian -->
+        <template x-if="pendingTransaksis.length > 0">
+            <span class="absolute top-1 right-2 bg-orange-500 text-white text-[10px] font-bold w-5 h-5 rounded-full flex items-center justify-center shadow-sm" x-text="pendingTransaksis.length"></span>
+        </template>
+    </button>
+</div>
 
             <div class="flex-1 min-h-0 overflow-hidden rounded-b-xl">
             {{-- Tab: Cart --}}
@@ -99,17 +108,38 @@
                             </button>
                         </div>
                         <template x-if="tipePesanan === 'dine_in'">
-                            <div class="mt-3">
-                                <label class="block text-sm font-medium text-gray-700 mb-1.5">Nomor Meja</label>
-                                <div class="grid grid-cols-5 gap-1.5">
-                                    <template x-for="i in 10" :key="i">
-                                        <button @click="nomorMeja = String(i)" :class="nomorMeja === String(i) ? 'bg-emerald-900 text-white ring-2 ring-emerald-500' : 'bg-gray-100 text-gray-700 hover:bg-gray-200'" class="px-2 py-2 rounded-lg text-sm font-semibold transition">
-                                            <span x-text="i"></span>
-                                        </button>
-                                    </template>
+                            <div class="mt-4 w-full overflow-hidden">
+                                <label class="block text-sm font-medium text-gray-800 mb-2">Nomor Meja</label>
+                                
+                                <!-- Wadah Utama: Slider Horizontal -->
+                                <div class="flex overflow-x-auto gap-4 pb-2 snap-x snap-mandatory scrollbar-hide w-full" style="scrollbar-width: none; -ms-overflow-style: none;">
+                                    
+                                    @php
+                                        $totalMeja = 20; 
+                                        $grupMeja = array_chunk(range(1, $totalMeja), 10);
+                                    @endphp
+
+                                    @foreach ($grupMeja as $grup)
+                                        <!-- Halaman Slide -->
+                                        <div class="w-full flex-shrink-0 snap-center">
+                                            
+                                            <!-- Grid 5x2 -->
+                                            <div class="grid grid-cols-5 gap-2">
+                                                @foreach ($grup as $i)
+                                                <button type="button" 
+                                                        @click="nomorMeja = '{{ $i }}'"
+                                                        :class="nomorMeja == '{{ $i }}' ? 'bg-emerald-900 text-white shadow-sm' : 'bg-gray-200 text-gray-700 hover:bg-gray-300'"
+                                                        class="w-full h-10 rounded text-sm font-medium transition-all flex items-center justify-center">
+                                                    {{ $i }}
+                                                </button>
+                                                @endforeach
+                                            </div>
+
+                                        </div>
+                                    @endforeach
+
                                 </div>
-                                <input type="hidden" x-model="nomorMeja">
-                            </div>
+
                         </template>
                         <div class="mt-3">
                             <label class="block text-sm font-medium text-gray-700 mb-1.5">Nama Pelanggan</label>
@@ -167,9 +197,21 @@
                             </div>
                         </template>
                         <div class="flex justify-between items-center mb-4">
-                            <span class="text-lg font-bold text-gray-800">Total</span>
-                            <span class="text-lg font-bold text-emerald-800" x-text="rupiah(total)"></span>
-                        </div>
+    <!-- Bagian Kiri: Teks Total & Jumlah Item -->
+    <div class="flex items-baseline">
+        <span class="font-bold text-gray-900 text-lg">Total</span>
+        
+        <!-- Ini tulisan (x item) yang kecil dan tidak bold -->
+        <span class="text-sm font-normal text-gray-500 ml-1">
+            (<span x-text="items.reduce((total, item) => total + item.qty, 0)"></span> item)
+        </span>
+    </div>
+    
+    <!-- Bagian Kanan: Harga Total -->
+    <span class="font-bold text-xl text-emerald-900">
+        Rp <span x-text="total.toLocaleString('id-ID')"></span>
+    </span>
+</div>
                         <button @click="kirimKeDapur()" :disabled="items.length === 0" :class="items.length === 0 ? 'bg-gray-300 cursor-not-allowed' : (editingPesananId ? 'bg-orange-500 hover:bg-orange-600' : 'bg-emerald-900 hover:bg-emerald-800')" class="w-full text-white font-semibold py-2.5 rounded-xl transition">
                             <span x-text="editingPesananId ? 'Tambah ke Pesanan' : 'Kirim ke Dapur'"></span>
                         </button>
@@ -184,7 +226,7 @@
                             {{-- Header --}}
                             <div class="bg-orange-500 text-white px-3 py-2.5">
                                 <div class="flex items-center justify-between">
-                                    <span class="font-bold text-sm" x-text="'#' + (pt.pesanans[0]?.nomor_pesanan || pt.id)"></span>
+                                   <span class="font-bold text-white text-sm" x-text="'#' + (pt.pesanans[0]?.nomor_pesanan || pt.id)"></span>
                                     <div class="flex items-center gap-2">
                                         <span class="text-[11px] opacity-80" x-text="new Date(pt.created_at).toLocaleTimeString('id-ID', {hour:'2-digit', minute:'2-digit'})"></span>
                                         <button @click="hapusPending(pt)" class="text-white/60 hover:text-white transition" title="Hapus pesanan">
@@ -343,95 +385,101 @@
         <div x-show="showStrukModal" class="fixed inset-0 z-50 flex items-center justify-center p-4" x-cloak>
             <div class="fixed inset-0 bg-black/50" @click="showStrukModal = false"></div>
             <div class="bg-white rounded-xl shadow-xl w-full max-w-sm relative z-10 p-6 max-h-[90vh] overflow-y-auto" id="struk-area">
-                {{-- Struk Pelanggan --}}
-                <div id="struk-pelanggan" x-show="cetakPelanggan">
-                    <div class="text-center mb-4 border-b pb-4">
-                        <template x-if="strukPelanggan.logo">
-                            <img :src="strukPelanggan.logo" alt="Logo" class="h-10 w-auto object-contain mx-auto mb-1">
-                        </template>
-                        <h4 class="font-bold text-lg" x-text="strukPelanggan.nama_usaha"></h4>
-                        <p class="text-xs text-gray-500" x-text="strukPelanggan.alamat"></p>
-                        <p class="text-xs text-gray-500" x-text="strukPelanggan.kontak"></p>
-                    </div>
+              {{-- Struk Pelanggan --}}
+<div id="struk-pelanggan" x-show="cetakPelanggan">
+    <div class="text-center mb-4 border-b pb-4">
+        <template x-if="strukPelanggan.logo">
+            <div class="flex justify-center mb-2">
+                <img :src="strukPelanggan.logo" alt="Logo" class="h-12 w-12 rounded-full object-cover border-2 border-emerald-800 shadow-sm mx-auto mb-1">
+            </div>
+        </template>
+        <h4 class="font-bold text-lg" x-text="strukPelanggan.nama_usaha"></h4>
+        <p class="text-xs text-gray-500" x-text="strukPelanggan.alamat"></p>
+        <p class="text-xs text-gray-500" x-text="strukPelanggan.kontak"></p>
+    </div>
 
-                    <div class="text-xs text-gray-600 mb-3 space-y-1">
-                        <div class="flex justify-between">
-                            <span>No. Pesanan</span>
-                            <span class="font-semibold" x-text="strukPelanggan.nomor_pesanan"></span>
-                        </div>
-                        <div class="flex justify-between">
-                            <span>Tipe</span>
-                            <span x-text="strukPelanggan.tipe_pesanan"></span>
-                        </div>
-                        <template x-if="strukPelanggan.nomor_meja">
-                            <div class="flex justify-between">
-                                <span>Meja</span>
-                                <span x-text="'Meja ' + strukPelanggan.nomor_meja"></span>
-                            </div>
-                        </template>
-                        <template x-if="strukPelanggan.nama_pelanggan">
-                            <div class="flex justify-between">
-                                <span>Pelanggan</span>
-                                <span x-text="strukPelanggan.nama_pelanggan"></span>
-                            </div>
-                        </template>
-                        <div class="flex justify-between">
-                            <span>Tanggal</span>
-                            <span x-text="strukPelanggan.datetime"></span>
-                        </div>
-                    </div>
+    <div class="text-xs text-gray-600 mb-3 space-y-1">
+        <div class="flex justify-between">
+            <span>No. Pesanan</span>
+            <span class="font-semibold" x-text="strukPelanggan.nomor_pesanan"></span>
+        </div>
+        <div class="flex justify-between">
+            <span>Tipe</span>
+            <span x-text="strukPelanggan.tipe_pesanan"></span>
+        </div>
+        <template x-if="strukPelanggan.nomor_meja">
+            <div class="flex justify-between">
+                <span>Meja</span>
+                <span x-text="'Meja ' + strukPelanggan.nomor_meja"></span>
+            </div>
+        </template>
+        <template x-if="strukPelanggan.nama_pelanggan">
+            <div class="flex justify-between">
+                <span>Pelanggan</span>
+                <span x-text="strukPelanggan.nama_pelanggan"></span>
+            </div>
+        </template>
+        <div class="flex justify-between">
+            <span>Kasir</span>
+            <span x-text="strukPelanggan.kasir"></span>
+        </div>
+        <div class="flex justify-between">
+            <span>Tanggal</span>
+            <span x-text="strukPelanggan.datetime"></span>
+        </div>
+    </div>
 
-                    <div class="border-t border-b py-2 mb-3 space-y-1">
-                        <template x-for="item in strukPelanggan.items" :key="item.nama">
-                            <div>
-                                <div class="flex justify-between text-sm">
-                                    <span class="flex-1" x-text="item.nama"></span>
-                                    <span class="text-gray-500 mx-2" x-text="item.qty + 'x'"></span>
-                                    <span class="font-semibold" x-text="rupiah(item.subtotal)"></span>
-                                </div>
-                                <template x-if="item.tipe === 'paket' && item.detail_paket?.length">
-                                    <div class="ml-3 mt-0.5 space-y-0.5">
-                                        <template x-for="dpp in item.detail_paket" :key="dpp.nama">
-                                            <div class="flex text-xs text-gray-400">
-                                                <svg class="w-3 h-3 mr-1 shrink-0 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/></svg>
-                                                <span x-text="dpp.nama + ' x' + (dpp.qty * item.qty)"></span>
-                                            </div>
-                                        </template>
-                                    </div>
-                                </template>
-                            </div>
-                        </template>
-                    </div>
-
-                    <div class="text-sm space-y-1 mb-4">
-                        <div class="flex justify-between font-bold">
-                            <span>Total</span>
-                            <span x-text="rupiah(strukPelanggan.total_harga)"></span>
-                        </div>
-                        <div class="flex justify-between text-gray-600">
-                            <span>Bayar</span>
-                            <span x-text="rupiah(strukPelanggan.bayar)"></span>
-                        </div>
-                        <div class="flex justify-between text-emerald-700 font-semibold">
-                            <span>Kembalian</span>
-                            <span x-text="rupiah(strukPelanggan.kembalian)"></span>
-                        </div>
-                        <div class="flex justify-between text-gray-600">
-                            <span>Tipe Bayar</span>
-                            <span class="capitalize" x-text="strukPelanggan.tipe_bayar"></span>
-                        </div>
-                    </div>
-
-                    <div class="text-center text-xs text-gray-500 border-t pt-3">
-                        <p>Kasir: <span x-text="strukPelanggan.kasir"></span></p>
-                        <template x-if="strukPelanggan.footer">
-                            <p class="mt-1" x-text="strukPelanggan.footer" style="white-space:pre-wrap;"></p>
-                        </template>
-                        <template x-if="!strukPelanggan.footer">
-                            <p class="mt-1">Terima kasih telah berbelanja</p>
-                        </template>
-                    </div>
+    <div class="border-t border-b py-2 mb-3 space-y-1">
+        <template x-for="item in strukPelanggan.items" :key="item.nama">
+            <div>
+                <div class="flex justify-between text-sm">
+                    <span class="flex-1" x-text="item.nama"></span>
+                    <span class="text-gray-500 mx-2" x-text="item.qty + 'x'"></span>
+                    <span class="font-semibold" x-text="rupiah(item.subtotal)"></span>
                 </div>
+                <template x-if="item.tipe === 'paket' && item.detail_paket?.length">
+                    <div class="ml-3 mt-0.5 space-y-0.5">
+                        <template x-for="dpp in item.detail_paket" :key="dpp.nama">
+                            <div class="flex text-xs text-gray-400">
+                                <svg class="w-3 h-3 mr-1 shrink-0 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/></svg>
+                                <span x-text="dpp.nama + ' x' + (dpp.qty * item.qty)"></span>
+                            </div>
+                        </template>
+                    </div>
+                </template>
+            </div>
+        </template>
+    </div>
+
+    <div class="text-sm space-y-1 mb-4">
+        <div class="flex justify-between font-bold">
+            <span>Total</span>
+            <span x-text="rupiah(strukPelanggan.total_harga)"></span>
+        </div>
+        <div class="flex justify-between text-gray-600">
+            <span>Bayar</span>
+            <span x-text="rupiah(strukPelanggan.bayar)"></span>
+        </div>
+        <div class="flex justify-between text-gray-600">
+            <span>Kembalian</span>
+            <span x-text="rupiah(strukPelanggan.kembalian)"></span>
+        </div>
+        <div class="flex justify-between text-gray-600">
+            <span>Tipe Bayar</span>
+            <span class="capitalize" x-text="strukPelanggan.tipe_bayar"></span>
+        </div>
+    </div>
+
+    <div class="text-center text-xs text-gray-500 border-t pt-3 space-y-1">
+        <template x-if="strukPelanggan.footer">
+            <p x-text="strukPelanggan.footer" style="white-space:pre-wrap;"></p>
+        </template>
+        <template x-if="!strukPelanggan.footer">
+            <p>Terima kasih telah berbelanja</p>
+        </template>
+        <p class="text-gray-400 font-medium">Follow IG : LalapanMasBoy.bdj</p>
+    </div>
+</div>
 
                 {{-- Separator & Struk Dapur --}}
                 <template x-if="cetakDapur">
@@ -448,7 +496,7 @@
                                     <img :src="strukDapur.logo" alt="Logo" class="h-10 w-auto object-contain mx-auto mb-1">
                                 </template>
                                 <h4 class="font-bold text-lg" x-text="strukDapur.nama_usaha"></h4>
-                                <p class="text-xs text-gray-500 font-semibold mt-1">STRUK DAPUR / KITCHEN ORDER</p>
+                                <p class="text-xs text-gray-500 font-semibold mt-1">STRUK DAPUR </p>
                             </div>
 
                             <div class="text-xs text-gray-600 mb-3 space-y-1">
@@ -957,10 +1005,12 @@ function pesananState() {
             setTimeout(() => { printWindow.print(); }, 500);
         },
 
-        buildStrukHTML(type) {
+      buildStrukHTML(type) {
             const data = type === 'pelanggan' ? this.strukPelanggan : this.strukDapur;
             let html = '';
-            const logoHtml = data.logo ? `<img src="${data.logo}" style="max-height:40px;max-width:100%;margin-bottom:4px;">` : '';
+            
+            // LOGO BULAT
+            const logoHtml = data.logo ? `<img src="${data.logo}" style="width:48px;height:48px;border-radius:50%;object-fit:cover;border:2px solid #000;margin-bottom:4px;">` : '';
 
             if (type === 'pelanggan') {
                 html = `
@@ -975,6 +1025,7 @@ function pesananState() {
                         <tr><td>Tipe</td><td style="text-align:right;">${data.tipe_pesanan}</td></tr>
                         ${data.nomor_meja ? `<tr><td>Meja</td><td style="text-align:right;">Meja ${data.nomor_meja}</td></tr>` : ''}
                         ${data.nama_pelanggan ? `<tr><td>Pelanggan</td><td style="text-align:right;">${data.nama_pelanggan}</td></tr>` : ''}
+                        <tr><td>Kasir</td><td style="text-align:right;">${data.kasir}</td></tr>
                         <tr><td>Tanggal</td><td style="text-align:right;">${data.datetime}</td></tr>
                     </table>
                     <div style="border-top:1px dashed #000;border-bottom:1px dashed #000;padding:4px 0;margin-bottom:6px;">
@@ -1000,7 +1051,8 @@ function pesananState() {
                         <div style="display:flex;justify-content:space-between;color:#666;padding:1px 0;">
                             <span>Bayar</span><span>${data.bayar !== null ? rupiah(data.bayar) : '-'}</span>
                         </div>
-                        <div style="display:flex;justify-content:space-between;color:#047857;font-weight:bold;padding:1px 0;">
+                        <!-- KEMBALIAN DIUBAH JADI HITAM -->
+                        <div style="display:flex;justify-content:space-between;color:#000;font-weight:bold;padding:1px 0;">
                             <span>Kembalian</span><span>${data.kembalian !== null ? rupiah(data.kembalian) : '-'}</span>
                         </div>
                         <div style="display:flex;justify-content:space-between;color:#666;padding:1px 0;">
@@ -1008,11 +1060,13 @@ function pesananState() {
                         </div>
                     </div>
                     <div style="text-align:center;font-size:9px;border-top:1px dashed #000;padding-top:6px;color:#666;">
-                        <p>Kasir: ${data.kasir}</p>
                         ${data.footer ? `<p style="white-space:pre-wrap;margin-top:2px;">${data.footer}</p>` : '<p>Terima kasih telah berbelanja</p>'}
+                        <!-- FOOTER INSTAGRAM DITAMBAHKAN DI SINI -->
+                        <p style="margin-top:6px;font-weight:bold;color:#000;">Follow IG : LalapanMasBoy.bdj</p>
                     </div>
                 `;
             } else {
+                // STRUK DAPUR
                 html = `
                     <div style="text-align:center; border-bottom:1px dashed #000; padding-bottom:8px; margin-bottom:8px;">
                         ${logoHtml}
@@ -1049,7 +1103,6 @@ function pesananState() {
             }
             return html;
         },
-
         resetPesanan() {
             this.items = [];
             this.nomorMeja = '';
